@@ -287,14 +287,14 @@ export default {
         // When a postback is called, we'll send a message back to the sender to
         // let them know it was successful
 
-        send.sendTextMessage(senderID, `Postback called: ${payload}`);
+        /*send.sendTextMessage(senderID, `Postback called: ${payload}`);*/
 
         if (payload) {
             switch (payload) {
                 case 'GET_STARTED_PAYLOAD':
                     series([
                         function sendFirstMessage(callback) {
-                            send.sendTextMessage(senderID, "Eai, tudo certo? Que legal poder falar com você por aqui! Meu nome é Bot deezer e eu amo música ❤");
+                            send.sendTextMessage(senderID, "Eai, tudo certo? Que legal poder falar com você por aqui! Meu nome é Bot deezer e eu amo música.");
                             callback();
                         },
                         function sendSecondMessage(callback) {
@@ -302,7 +302,7 @@ export default {
                             callback();
                         },
                         function sendThirdMessage(callback) {
-                            send.sendTextMessage(senderID, "Olha só como é fácil 😉");
+                            send.sendTextMessage(senderID, "Olha só como é fácil!");
                             callback();
                         },
                         function sendForthMessage(callback) {
@@ -312,7 +312,7 @@ export default {
                     ]);
                     break;
                 case 'WAITING_FOR_SONG_PAYLOAD':
-                    send.sendWaitForSong(senderID, "Legal! 👌\nFaz assim, digite o nome da 👇\n🎵 música\n🎶 álbum ou\n🎤 cantor\nque quer ouvir.");
+                    send.sendWaitForSong(senderID, "Legal! Faz assim, digite o nome da música, álbum ou cantor que quer ouvir.");
                     WAITING_FOR_SONG = true;
                     break;
                 case 'VIEW_QUEUE_PAYLOAD':
