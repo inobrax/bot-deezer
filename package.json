@@ -1,0 +1,46 @@
+{
+  "name": "bot-deezer",
+  "version": "1.0.0",
+  "description": "Simulação de bot desenvolvido no Bothaton do Facebook #CPBR10",
+  "main": "src/server/server.js",
+  "scripts": {
+    "build": "babel src/server -d dist/server && cp Procfile dist/ && cp package.json dist/ && cp -R src/public/ dist/",
+    "deploy": "npm run build && cd dist && git add . && git commit -am 'fixes' && git push heroku master"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/inobrax/bot-deezer.git"
+  },
+  "keywords": [
+    "messenger-bot",
+    "deezer-api",
+    "nodejs"
+  ],
+  "author": "Gabriel Fabri",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/inobrax/bot-deezer/issues"
+  },
+  "homepage": "https://github.com/inobrax/bot-deezer#readme",
+  "engines": {
+    "node": "7.9.0",
+    "npm": "4.2.0"
+  },
+  "dependencies": {
+    "async": "^2.1.5",
+    "body-parser": "^1.17.1",
+    "bootstrap": "^3.3.7",
+    "crypto": "0.0.3",
+    "deezer-node-api": "^0.2.2",
+    "es6-promisify": "^5.0.0",
+    "express": "^4.15.2",
+    "request": "^2.81.0",
+    "socket.io": "^1.7.3"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.23.0",
+    "babel-core": "^6.23.1",
+    "babel-polyfill": "^6.23.0",
+    "babel-preset-env": "^1.2.0"
+  }
+}

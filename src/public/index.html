@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="https://e-cdns-files.dzcdn.net/js/min/dz.js"></script>
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        .progressbarplay {
+            cursor: pointer;
+            overflow: hidden;
+            height: 8px;
+            margin-bottom: 8px;
+            background-color: #F7F7F7;
+            background-image: -moz-linear-gradient(top, whiteSmoke, #F9F9F9);
+            background-image: -ms-linear-gradient(top, whiteSmoke, #F9F9F9);
+            background-image: -webkit-gradient(linear, 0 0, 0 100%, from(whiteSmoke), to(#F9F9F9));
+            background-image: -webkit-linear-gradient(top, whiteSmoke, #F9F9F9);
+            background-image: -o-linear-gradient(top, whiteSmoke, #F9F9F9);
+            background-image: linear-gradient(top, whiteSmoke, #F9F9F9);
+            background-repeat: repeat-x;
+            filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f5f5f5', endColorstr='#f9f9f9', GradientType=0);
+            -webkit-box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+            -moz-box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+            -webkit-border-radius: 6px;
+            -moz-border-radius: 6px;
+            border-radius: 6px;
+        }
+
+        .progressbarplay .bar {
+            cursor: pointer;
+            background: #4496C6;
+            width: 0;
+            height: 8px;
+            color: white;
+            font-size: 12px;
+            text-align: center;
+            text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+            -webkit-box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+            -moz-box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+            box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+            -webkit-transition: width .6s ease;
+            -moz-transition: width .6s ease;
+            -ms-transition: width .6s ease;
+            -o-transition: width .6s ease;
+            transition: width .6s ease;
+        }
+    </style>
+</head>
+
+<body class="container-fluid">
+    <div id="dz-root"></div>
+    <br><br>
+    <div id="controlers">
+        <button type="button" class="btn btn-primary" aria-label="Prev" value="prev" onclick="DZ.player.prev(); return false;">
+          <i class="fa fa-step-backward" aria-hidden="true"></i>
+        </button>
+        <button type="button" class="btn btn-primary" aria-label="Play" value="play" onclick="DZ.player.play(); return false;">
+          <i class="fa fa-play" aria-hidden="true"></i>
+        </button>
+        <button type="button" class="btn btn-primary" aria-label="Pause" value="pause" onclick="DZ.player.pause(); return false;">
+          <i class="fa fa-pause" aria-hidden="true"></i>
+        </button>
+        <button type="button" class="btn btn-primary" aria-label="Next" value="next" onclick="DZ.player.next(); return false;">
+          <i class="fa fa-step-forward" aria-hidden="true"></i>
+        </button>
+    </div>
+    <br>
+    <div id="slider_seek" class="progressbarplay">
+        <div class="bar"></div>
+    </div>
+
+    <p id="songs"></p>
+
+    <script src="/socket.io/socket.io.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $("#controlers button").attr('disabled', true);
+            $("#slider_seek").click(function (evt, arg) {
+                var left = evt.offsetX;
+                console.log(evt.offsetX, $(this).width(), evt.offsetX / $(this).width());
+                DZ.player.seek((evt.offsetX / $(this).width()) * 100);
+            });
+        });
+
+        function event_listener_append() {
+            var pre = document.getElementById('event_listener');
+            var line = [];
+            for (var i = 0; i < arguments.length; i++) {
+                line.push(arguments[i]);
+            }
+            pre.innerHTML += line.join(' ') + "<br>";
+        }
+
+        function onPlayerLoaded() {
+            $("#controlers button").attr('disabled', false);
+            event_listener_append('player_loaded');
+            DZ.Event.subscribe('current_track', function (arg) {
+                event_listener_append('current_track', arg.index, arg.track.title, arg.track.album.title);
+            });
+            DZ.Event.subscribe('player_position', function (arg) {
+                event_listener_append('position', arg[0], arg[1]);
+                $("#slider_seek").find('.bar').css('width', (100 * arg[0] / arg[1]) + '%');
+            });
+
+        }
+        DZ.init({
+            appId: '228362',
+            channelUrl: 'http://developers.deezer.com/examples/channel.php',
+            player: {
+                onload: onPlayerLoaded
+            }
+        });
+    </script><br/> Event Listener : <br/>
+    <samp>
+        <pre id="event_listener" style="max-height: 100px; overflow: auto;"></pre>
+        </samp>
+    <script>
+        var socket = io();
+        var el = document.getElementById('songs');
+
+        socket.on('songs', function (trackId) {
+            el.innerHTML = 'Track ID: ' + trackId;
+            DZ.player.addToQueue([trackId]);
+        });
+    </script>
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js"></script>
+</body>
+
+</html>
