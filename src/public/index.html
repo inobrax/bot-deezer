@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" style="background-color: #23232C">
 
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
     <script type="text/javascript" src="https://e-cdns-files.dzcdn.net/js/min/dz.js"></script>
@@ -16,8 +17,6 @@
     <div id="dz-root"></div>
     <div id="player" style="width:100%;" align="center"></div>
 
-    <p style="display: none;" id="songs"></p>
-
     <script src="/socket.io/socket.io.js"></script>
     <script>
         DZ.init({
@@ -26,20 +25,19 @@
             player: {
                 container: 'player',
                 playlist: true,
-                width: 650,
-                height: 300,
-                onload: function(){}
+                volume: 15,
+                size: 'big',
+                color: '23232C',
+                onload: function () {
+                    DZ.player.playTracks(['92719900', '963085']);
+                }
             }
         });
     </script>
     <script>
         var socket = io();
-        var el = document.getElementById('songs');
-
         socket.on('songs', function (trackId) {
-            el.innerHTML = 'Track ID: ' + trackId;
             DZ.player.addToQueue([trackId]);
-            /*DZ.player.playTracks([trackId]);*/
         });
     </script>
 

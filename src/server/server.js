@@ -129,46 +129,49 @@ export default {
             dz.findTracks(messageText).then(function (result) {
                 WAITING_FOR_SONG = false;
                 result = result.data;
-                var length = void 0;
-                console.log('HAHAHA: ', result);
-                if (Array.from(result).length > 8) {
-                    console.log('MAIOR QUE 8');
-                    length = 8;
+                var length = 0;
+                if (Array.from(result).length == 0) {
+                    send.sendWaitForSong(senderID, 'Não encontramos esta música. Faz assim, digite a música, cantor ou albúm que quer ouvir.');
+                    WAITING_FOR_SONG = true;
                 } else {
-                    console.log('MENOR QUE 8');
-                    length = Array.from(result).length;
-                }
-                var elements = [];
-                for (var song = 1; song <= length; song++) {
-                    var element = {
-                        title: result[song].title || 'TESTESTESTESTE',
-                        subtitle: result[song].artist.name,
-                        image_url: result[song].album.cover_big,
-                        buttons: [{
-                            type: "postback",
-                            title: "Escolher música",
-                            payload: JSON.stringify({
-                                songID: result[song].id
-                            })
-                        }]
-                    };
-                    elements.push(element);
-                }
-                var messageData = {
-                    recipient: {
-                        id: senderID
-                    },
-                    message: {
-                        attachment: {
-                            type: "template",
-                            payload: {
-                                template_type: "generic",
-                                elements: elements
+                    if (Array.from(result).length > 8) {
+                        length = 8;
+                    } else {
+                        length = Array.from(result).length;
+                    }
+                    var elements = [];
+                    for (var song = 1; song <= length; song++) {
+                        var element = {
+                            title: result[song].title,
+                            subtitle: result[song].artist.name,
+                            image_url: result[song].album.cover_big,
+                            buttons: [{
+                                type: "postback",
+                                title: "Escolher música",
+                                payload: JSON.stringify({
+                                    songID: result[song].id
+                                })
+                            }]
+                        };
+                        elements.push(element);
+                    }
+                    var messageData = {
+                        recipient: {
+                            id: senderID
+                        },
+                        message: {
+                            attachment: {
+                                type: "template",
+                                payload: {
+                                    template_type: "generic",
+                                    elements: elements
+                                }
                             }
                         }
-                    }
-                };
-                send.sendCarouselSongResponse(messageData);
+                    };
+                    send.sendCarouselSongResponse(messageData);
+                }
+
             });
         } else if (messageText) {
 
