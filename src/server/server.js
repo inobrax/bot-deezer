@@ -53,6 +53,7 @@ function findTracks(messageText, senderID) {
                 resolve();
             }).then(() => {
                 send.sendSecondOptionGenres(senderID);
+                WAITING_FOR_SONG = true;
             });
         } else {
             if (Array.from(result).length > 8) {
@@ -229,11 +230,13 @@ export default {
                 case 'account linking':
                     send.sendAccountLinking(senderID);
                     break;
+                default:
+                send.sendWaitForSong(senderID, "Ok. Parece que você mudou de idéia. Faz assim, digite o nome da música, álbum ou cantor que quer ouvir.");
+                WAITING_FOR_SONG = true;
             }
         } else if (messageAttachments) {
             send.sendTextMessage(senderID, "Message with attachment received");
         }
-
 
     },
 
@@ -295,39 +298,32 @@ export default {
                     const firstMessage = () => {
                         return new Promise((resolve, reject) => {
                             send.sendTextMessage(senderID, "Eai, tudo certo? Que legal poder falar com você por aqui! Meu nome é Bot deezer e eu amo música.");
-                            resolve();
+                            resolve(true);
                         });
-                    }
+                    };
                     const secondMessage = () => {
                         return new Promise((resolve, reject) => {
                             send.sendTextMessage(senderID, "Estou aqui pra te ajudar a bombar essa festa! Escolha as músicas que tocam na Boom Bike da Deezer aqui na #CPBR10.");
-                            resolve();
+                            resolve(true);
                         });
-                    }
+                    };
                     const thirdMessage = () => {
                         return new Promise((resolve, reject) => {
                             send.sendTextMessage(senderID, "Olha só como é fácil!");
-                            resolve();
+                            resolve(true);
                         });
-                    }
-
+                    };
                     const fourthMessage = () => {
                         return new Promise((resolve, reject) => {
                             send.sendCarouselGetStarted(senderID);
-                            resolve();
+                            resolve(true);
                         });
-                    }
+                    };
 
                     return firstMessage()
-                        .then(() => {
-                            return secondMessage();
-                        })
-                        .then(() => {
-                            return thirdMessage();
-                        })
-                        .then(() => {
-                            return fourthMessage();
-                        });
+                        .then(secondMessage())
+                        .then(thirdMessage())
+                        .then(fourthMessage());
                     break;
                 case 'WAITING_FOR_SONG_PAYLOAD':
                     send.sendWaitForSong(senderID, "Legal! Faz assim, digite o nome da música, álbum ou cantor que quer ouvir.");

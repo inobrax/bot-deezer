@@ -321,7 +321,7 @@ export default {
                         elements: [{
                                 title: "Aqui você é o DJ!",
                                 subtitle: "Escolha sua música favorita",
-                                image_url: "https://goo.gl/FNpi21",
+                                image_url: "https://goo.gl/FaOroG",
                                 buttons: [{
                                     type: "postback",
                                     title: "Escolher música",
