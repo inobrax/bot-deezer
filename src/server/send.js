@@ -183,6 +183,37 @@ export default {
         callSendAPI(messageData);
     },
 
+    /* Second option to choose a song genre
+     */
+    sendSecondOptionGenres(recipientId) {
+        const messageData = {
+            recipient: {
+                id: recipientId
+            },
+            message: {
+                text: "Você pode também apenas escolher o gênero",
+                quick_replies: [{
+                        "content_type": "text",
+                        "title": "Rock",
+                        "payload": JSON.stringify('Rock')
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "Sertanejo",
+                        "payload": JSON.stringify('Sertanejo')
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "MPB",
+                        "payload": JSON.stringify('MPB')
+                    }
+                ]
+            }
+        };
+
+        callSendAPI(messageData);
+    },
+
     /*
      * Send a button message using the Send API.
      *
@@ -225,52 +256,52 @@ export default {
      *
      */
 
-     sendCarouselSongQueue(recipientId) {
-       const messageData = {
-           recipient: {
-               id: recipientId
-           },
-           message: {
-               attachment: {
-                   type: "template",
-                   payload: {
-                       template_type: "generic",
-                       elements: [{
-                           title: "rift",
-                           subtitle: "Next-generation virtual reality",
-                           item_url: "https://www.oculus.com/en-us/rift/",
-                           image_url: `${process.env.SERVER_URL}/assets/rift.png`,
-                           buttons: [{
-                               type: "web_url",
-                               url: "https://www.oculus.com/en-us/rift/",
-                               title: "Open Web URL"
-                           }, {
-                               type: "postback",
-                               title: "Call Postback",
-                               payload: "Payload for first bubble",
-                           }],
-                       }, {
-                           title: "touch",
-                           subtitle: "Your Hands, Now in VR",
-                           item_url: "https://www.oculus.com/en-us/touch/",
-                           image_url: `${process.env.SERVER_URL}/assets/touch.png`,
-                           buttons: [{
-                               type: "web_url",
-                               url: "https://www.oculus.com/en-us/touch/",
-                               title: "Open Web URL"
-                           }, {
-                               type: "postback",
-                               title: "Call Postback",
-                               payload: "Payload for second bubble",
-                           }]
-                       }]
-                   }
-               }
-           }
-       };
+    sendCarouselSongQueue(recipientId) {
+        const messageData = {
+            recipient: {
+                id: recipientId
+            },
+            message: {
+                attachment: {
+                    type: "template",
+                    payload: {
+                        template_type: "generic",
+                        elements: [{
+                            title: "rift",
+                            subtitle: "Next-generation virtual reality",
+                            item_url: "https://www.oculus.com/en-us/rift/",
+                            image_url: `${process.env.SERVER_URL}/assets/rift.png`,
+                            buttons: [{
+                                type: "web_url",
+                                url: "https://www.oculus.com/en-us/rift/",
+                                title: "Open Web URL"
+                            }, {
+                                type: "postback",
+                                title: "Call Postback",
+                                payload: "Payload for first bubble",
+                            }],
+                        }, {
+                            title: "touch",
+                            subtitle: "Your Hands, Now in VR",
+                            item_url: "https://www.oculus.com/en-us/touch/",
+                            image_url: `${process.env.SERVER_URL}/assets/touch.png`,
+                            buttons: [{
+                                type: "web_url",
+                                url: "https://www.oculus.com/en-us/touch/",
+                                title: "Open Web URL"
+                            }, {
+                                type: "postback",
+                                title: "Call Postback",
+                                payload: "Payload for second bubble",
+                            }]
+                        }]
+                    }
+                }
+            }
+        };
 
-       callSendAPI(messageData);
-     },
+        callSendAPI(messageData);
+    },
 
     /*
      * Send a Structured Message with song choosen reponse from Deezer API (Generic Message type) using the Send API

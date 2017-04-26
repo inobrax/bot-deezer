@@ -41,6 +41,61 @@ io.on('connection', (socket) => {
 
 server.listen(port, () => console.log(`API running on localhost:${port}`));
 
+function findTracks(messageText, senderID) {
+    dz.findTracks(messageText).then(function (result) {
+        WAITING_FOR_SONG = false;
+        result = result.data;
+        var length = 0;
+        if (Array.from(result).length == 0) {
+            return new Promise((resolve, reject) => {
+                send.sendWaitForSong(senderID, 'Não encontramos esta música. Faz assim, digite a música, cantor ou albúm que quer ouvir.');
+                WAITING_FOR_SONG = true;
+                resolve();
+            }).then(() => {
+                send.sendSecondOptionGenres(senderID);
+            });
+        } else {
+            if (Array.from(result).length > 8) {
+                length = 8;
+            } else {
+                length = Array.from(result).length;
+            }
+            var elements = [];
+            for (var song = 1; song <= length; song++) {
+                var element = {
+                    title: result[song].title,
+                    subtitle: result[song].artist.name,
+                    image_url: result[song].album.cover_big,
+                    buttons: [{
+                        type: "postback",
+                        title: "Escolher música",
+                        payload: JSON.stringify({
+                            songID: result[song].id
+                        })
+                    }]
+                };
+                elements.push(element);
+            }
+            var messageData = {
+                recipient: {
+                    id: senderID
+                },
+                message: {
+                    attachment: {
+                        type: "template",
+                        payload: {
+                            template_type: "generic",
+                            elements: elements
+                        }
+                    }
+                }
+            };
+            send.sendCarouselSongResponse(messageData);
+        }
+
+    });
+}
+
 export default {
     /*
      * Authorization Event
@@ -111,68 +166,12 @@ export default {
         const messageAttachments = message.attachments;
         const quickReply = message.quick_reply;
 
-        if (isEcho) {
-            // Just logging message echoes to console
-            console.log("Received echo for message %s and app %d with metadata %s",
-                messageId, appId, metadata);
-            return;
-        } else if (quickReply) {
+        if (quickReply) {
             const quickReplyPayload = quickReply.payload;
-            console.log("Quick reply for message %s with payload %s",
-                messageId, quickReplyPayload);
-
-            send.sendTextMessage(senderID, "Quick reply tapped");
-            return;
-        }
-
-        if (WAITING_FOR_SONG && messageText) {
-            dz.findTracks(messageText).then(function (result) {
-                WAITING_FOR_SONG = false;
-                result = result.data;
-                var length = 0;
-                if (Array.from(result).length == 0) {
-                    send.sendWaitForSong(senderID, 'Não encontramos esta música. Faz assim, digite a música, cantor ou albúm que quer ouvir.');
-                    WAITING_FOR_SONG = true;
-                } else {
-                    if (Array.from(result).length > 8) {
-                        length = 8;
-                    } else {
-                        length = Array.from(result).length;
-                    }
-                    var elements = [];
-                    for (var song = 1; song <= length; song++) {
-                        var element = {
-                            title: result[song].title,
-                            subtitle: result[song].artist.name,
-                            image_url: result[song].album.cover_big,
-                            buttons: [{
-                                type: "postback",
-                                title: "Escolher música",
-                                payload: JSON.stringify({
-                                    songID: result[song].id
-                                })
-                            }]
-                        };
-                        elements.push(element);
-                    }
-                    var messageData = {
-                        recipient: {
-                            id: senderID
-                        },
-                        message: {
-                            attachment: {
-                                type: "template",
-                                payload: {
-                                    template_type: "generic",
-                                    elements: elements
-                                }
-                            }
-                        }
-                    };
-                    send.sendCarouselSongResponse(messageData);
-                }
-
-            });
+            console.log("Quick reply for message %s with payload %s", messageId, quickReplyPayload);
+            findTracks(JSON.stringify(quickReplyPayload), senderID);
+        } else if (WAITING_FOR_SONG && messageText) {
+            findTracks(messageText, senderID);
         } else if (messageText) {
 
             // If we receive a text message, check to see if it matches any special
@@ -255,8 +254,7 @@ export default {
 
         if (messageIDs) {
             messageIDs.forEach(messageID => {
-                console.log("Received delivery confirmation for message ID: %s",
-                    messageID);
+                console.log("Received delivery confirmation for message ID: %s", messageID);
             });
         }
 
@@ -284,8 +282,7 @@ export default {
         // button for Structured Messages.
         const payload = postback.payload;
 
-        console.log("Received postback for user %d and page %d with payload '%s' " +
-            "at %d", senderID, recipientID, payload, timeOfPostback);
+        console.log("Received postback for user %d and page %d with payload '%s' at %d", senderID, recipientID, payload, timeOfPostback);
 
         // When a postback is called, we'll send a message back to the sender to
         // let them know it was successful
@@ -295,24 +292,42 @@ export default {
         if (payload) {
             switch (payload) {
                 case 'GET_STARTED_PAYLOAD':
-                    series([
-                        function sendFirstMessage(callback) {
+                    const firstMessage = () => {
+                        return new Promise((resolve, reject) => {
                             send.sendTextMessage(senderID, "Eai, tudo certo? Que legal poder falar com você por aqui! Meu nome é Bot deezer e eu amo música.");
-                            callback();
-                        },
-                        function sendSecondMessage(callback) {
+                            resolve();
+                        });
+                    }
+                    const secondMessage = () => {
+                        return new Promise((resolve, reject) => {
                             send.sendTextMessage(senderID, "Estou aqui pra te ajudar a bombar essa festa! Escolha as músicas que tocam na Boom Bike da Deezer aqui na #CPBR10.");
-                            callback();
-                        },
-                        function sendThirdMessage(callback) {
+                            resolve();
+                        });
+                    }
+                    const thirdMessage = () => {
+                        return new Promise((resolve, reject) => {
                             send.sendTextMessage(senderID, "Olha só como é fácil!");
-                            callback();
-                        },
-                        function sendForthMessage(callback) {
+                            resolve();
+                        });
+                    }
+
+                    const fourthMessage = () => {
+                        return new Promise((resolve, reject) => {
                             send.sendCarouselGetStarted(senderID);
-                            callback();
-                        }
-                    ]);
+                            resolve();
+                        });
+                    }
+
+                    return firstMessage()
+                        .then(() => {
+                            return secondMessage();
+                        })
+                        .then(() => {
+                            return thirdMessage();
+                        })
+                        .then(() => {
+                            return fourthMessage();
+                        });
                     break;
                 case 'WAITING_FOR_SONG_PAYLOAD':
                     send.sendWaitForSong(senderID, "Legal! Faz assim, digite o nome da música, álbum ou cantor que quer ouvir.");
@@ -352,7 +367,6 @@ export default {
         const watermark = read.watermark;
         const sequenceNumber = read.seq;
 
-        console.log("Received message read event for watermark %d and sequence " +
-            "number %d", watermark, sequenceNumber);
+        console.log("Received message read event for watermark %d and sequence " + "number %d", watermark, sequenceNumber);
     }
 };
